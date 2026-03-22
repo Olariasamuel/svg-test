@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌻 Ramo de Girasoles</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:#04040f;min-height:100vh;display:flex;flex-direction:column;align-items:center;font-family:'Lato',sans-serif;overflow-x:hidden;overflow-y:auto}
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .page{position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;padding:32px 16px 48px}
+  #scene{position:relative;width:min(440px,96vw);height:540px;flex-shrink:0}
+  #mini-sun{position:absolute;left:50%;top:44%;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 38% 35%,#fff176,#ffcc00 55%,#ff8800);box-shadow:0 0 20px 8px rgba(255,210,0,.8),0 0 60px 22px rgba(255,150,0,.4),0 0 120px 50px rgba(255,100,0,.15);transform:translate(-50%,-50%);animation:sun-pulse 2.8s ease-in-out infinite;transition:transform .5s cubic-bezier(.34,1.5,.64,1),opacity .45s ease;z-index:4}
+  #mini-sun.burst{transform:translate(-50%,-50%) scale(4.5)!important;opacity:0!important}
+  @keyframes sun-pulse{0%,100%{box-shadow:0 0 20px 8px rgba(255,210,0,.8),0 0 60px 22px rgba(255,150,0,.4),0 0 120px 50px rgba(255,100,0,.15)}50%{box-shadow:0 0 32px 14px rgba(255,230,0,.95),0 0 85px 35px rgba(255,160,0,.55),0 0 160px 70px rgba(255,110,0,.22)}}
+  #bouquet-svg{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;transition:opacity .4s ease;overflow:visible}
+  #bouquet-svg.visible{opacity:1}
+  /* KEY: petal-group only animates scale. Petals have absolute cx/cy coords. */
+  .petal-group{transform-box:fill-box;transform-origin:50% 50%;transform:scale(0);opacity:0;transition:transform .55s cubic-bezier(.34,1.58,.64,1),opacity .3s ease}
+  .leaf-group{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);opacity:0;transition:transform .38s cubic-bezier(.34,1.4,.64,1),opacity .28s ease}
+  .paper-piece{opacity:0;transition:opacity .5s ease}
+  .stem-line{opacity:0;transition:opacity .35s ease}
+  .sway-pos{transform-box:fill-box;transform-origin:50% 100%}
+  @keyframes sway1{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+  @keyframes sway2{0%,100%{transform:rotate(2deg)}50%{transform:rotate(-2deg)}}
+  @keyframes sway3{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(2deg)}}
+  @keyframes sway4{0%,100%{transform:rotate(1.5deg)}50%{transform:rotate(-2.5deg)}}
+  @keyframes sway5{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(3deg)}}
+  @keyframes sway6{0%,100%{transform:rotate(3deg)}50%{transform:rotate(-1.5deg)}}
+  @keyframes sway7{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(2.5deg)}}
+  @keyframes sway8{0%,100%{transform:rotate(2.5deg)}50%{transform:rotate(-2deg)}}
+  @keyframes sway9{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(1.5deg)}}
+  @keyframes sway10{0%,100%{transform:rotate(1deg)}50%{transform:rotate(-3deg)}}
+  @keyframes sway11{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+  @keyframes sway12{0%,100%{transform:rotate(2deg)}50%{transform:rotate(-3deg)}}
+  @keyframes sway13{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(2.5deg)}}
+  @keyframes sway14{0%,100%{transform:rotate(3deg)}50%{transform:rotate(-2deg)}}
+  @keyframes sway15{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(1.5deg)}}
+  #open-btn{background:linear-gradient(135deg,#FFD700,#FFA500);color:#1a0800;font-family:'Playfair Display',serif;font-size:clamp(.9rem,2.4vw,1.1rem);font-weight:700;border:none;padding:15px 34px;border-radius:50px;cursor:pointer;margin-top:18px;letter-spacing:.02em;flex-shrink:0;animation:pulse-btn 2.4s ease-in-out infinite;transition:transform .2s,opacity .4s,max-height .4s,margin .4s,padding .4s;overflow:hidden;max-height:80px}
+  #open-btn:hover{transform:scale(1.06)}
+  #open-btn.hidden{opacity:0;pointer-events:none;max-height:0;margin-top:0;padding-top:0;padding-bottom:0}
+  @keyframes pulse-btn{0%,100%{box-shadow:0 4px 24px rgba(255,180,0,.5),0 0 0 0 rgba(255,200,0,.35)}50%{box-shadow:0 4px 32px rgba(255,180,0,.65),0 0 0 14px rgba(255,200,0,0)}}
+  #message-card{width:min(440px,90vw);background:rgba(8,6,22,.78);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid rgba(255,200,60,.3);border-radius:20px;padding:22px 28px;text-align:center;opacity:0;transform:translateY(20px);transition:opacity .9s ease,transform .9s ease;margin-top:24px;pointer-events:none;flex-shrink:0}
+  #message-card.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+  #message-card h2{font-family:'Playfair Display',serif;font-size:clamp(1.05rem,3.2vw,1.35rem);color:#FFD700;margin-bottom:9px}
+  #message-card p{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(.78rem,2vw,.92rem);color:rgba(255,218,120,.72);line-height:1.55}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="page">
+  <div id="scene">
+    <div id="mini-sun"></div>
+    <svg id="bouquet-svg" viewBox="0 0 440 540" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="paperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f8eeda"/><stop offset="55%" stop-color="#edce95"/><stop offset="100%" stop-color="#ddb96a"/>
+        </linearGradient>
+        <linearGradient id="paperEdge" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#c9a055" stop-opacity="0.5"/><stop offset="45%" stop-color="transparent"/><stop offset="100%" stop-color="#c9a055" stop-opacity="0.4"/>
+        </linearGradient>
+        <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ff9d00"/><stop offset="100%" stop-color="#d85e00"/>
+        </linearGradient>
+        <radialGradient id="petalG" cx="50%" cy="38%" r="62%">
+          <stop offset="0%" stop-color="#ffe840"/><stop offset="65%" stop-color="#ffd000"/><stop offset="100%" stop-color="#efa800"/>
+        </radialGradient>
+        <radialGradient id="centerG" cx="38%" cy="33%" r="66%">
+          <stop offset="0%" stop-color="#7a4a12"/><stop offset="60%" stop-color="#452806"/><stop offset="100%" stop-color="#2a1502"/>
+        </radialGradient>
+      </defs>
+      <!-- STEMS -->
+      <g>
+        <line class="stem-line" x1="148" y1="165" x2="194" y2="430" stroke="#4a7c2f" stroke-width="4.5" stroke-linecap="round"/>
+        <line class="stem-line" x1="292" y1="168" x2="246" y2="430" stroke="#4a7c2f" stroke-width="4.5" stroke-linecap="round"/>
+        <line class="stem-line" x1="108" y1="215" x2="182" y2="430" stroke="#3d6b25" stroke-width="4" stroke-linecap="round"/>
+        <line class="stem-line" x1="332" y1="218" x2="258" y2="430" stroke="#3d6b25" stroke-width="4" stroke-linecap="round"/>
+        <line class="stem-line" x1="220" y1="125" x2="220" y2="430" stroke="#4a7c2f" stroke-width="5.5" stroke-linecap="round"/>
+        <line class="stem-line" x1="170" y1="195" x2="200" y2="430" stroke="#4a7c2f" stroke-width="4" stroke-linecap="round"/>
+        <line class="stem-line" x1="270" y1="195" x2="240" y2="430" stroke="#4a7c2f" stroke-width="4" stroke-linecap="round"/>
+        <line class="stem-line" x1="130" y1="248" x2="188" y2="430" stroke="#3d6b25" stroke-width="3.8" stroke-linecap="round"/>
+        <line class="stem-line" x1="310" y1="252" x2="252" y2="430" stroke="#3d6b25" stroke-width="3.8" stroke-linecap="round"/>
+        <line class="stem-line" x1="203" y1="164" x2="212" y2="430" stroke="#4a7c2f" stroke-width="3.8" stroke-linecap="round"/>
+        <line class="stem-line" x1="237" y1="164" x2="228" y2="430" stroke="#4a7c2f" stroke-width="3.8" stroke-linecap="round"/>
+        <line class="stem-line" x1="186" y1="207" x2="204" y2="430" stroke="#4a7c2f" stroke-width="4" stroke-linecap="round"/>
+        <line class="stem-line" x1="254" y1="207" x2="236" y2="430" stroke="#4a7c2f" stroke-width="4" stroke-linecap="round"/>
+        <line class="stem-line" x1="155" y1="262" x2="192" y2="430" stroke="#3d6b25" stroke-width="3.8" stroke-linecap="round"/>
+        <line class="stem-line" x1="285" y1="262" x2="248" y2="430" stroke="#3d6b25" stroke-width="3.8" stroke-linecap="round"/>
+      </g>
+      <!-- PAPER WRAP -->
+      <g>
+        <polygon class="paper-piece" points="138,390 302,390 342,528 98,528" fill="url(#paperGrad)"/>
+        <polygon class="paper-piece" points="138,390 98,528 140,495 162,390" fill="#d4ad6a" opacity="0.65"/>
+        <polygon class="paper-piece" points="302,390 342,528 300,495 278,390" fill="#d4ad6a" opacity="0.6"/>
+        <polygon class="paper-piece" points="138,390 302,390 342,528 98,528" fill="url(#paperEdge)"/>
+        <polyline class="paper-piece" points="136,390 153,382 174,388 196,379 220,386 244,378 266,386 288,380 304,390" fill="none" stroke="#c09050" stroke-width="1.5" stroke-linejoin="round"/>
+        <ellipse class="paper-piece" cx="196" cy="398" rx="27" ry="14" fill="url(#ribbonGrad)" transform="rotate(-18,196,398)"/>
+        <ellipse class="paper-piece" cx="196" cy="398" rx="18" ry="8" fill="#a04800" opacity="0.3" transform="rotate(-18,196,398)"/>
+        <ellipse class="paper-piece" cx="244" cy="398" rx="27" ry="14" fill="url(#ribbonGrad)" transform="rotate(18,244,398)"/>
+        <ellipse class="paper-piece" cx="244" cy="398" rx="18" ry="8" fill="#a04800" opacity="0.3" transform="rotate(18,244,398)"/>
+        <path class="paper-piece" d="M212,406 Q196,428 185,448" stroke="#d07000" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <path class="paper-piece" d="M228,406 Q244,428 255,448" stroke="#d07000" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <ellipse class="paper-piece" cx="220" cy="402" rx="15" ry="10" fill="#ff8c00"/>
+        <ellipse class="paper-piece" cx="220" cy="402" rx="8" ry="5.5" fill="#ffaa30"/>
+      </g>
+
+
+      <!-- F1 (148,165) -->
+      <g transform="translate(148,165)">
+        <g class="sway-pos" id="sw1">
+          <g class="petal-group">
+            <ellipse cx="0.0" cy="-26.0" rx="28" ry="6" fill="url(#petalG)" transform="rotate(0,0.0,-26.0)"/>
+            <ellipse cx="13.0" cy="-22.5" rx="28" ry="6" fill="url(#petalG)" transform="rotate(30,13.0,-22.5)"/>
+            <ellipse cx="22.5" cy="-13.0" rx="28" ry="6" fill="url(#petalG)" transform="rotate(60,22.5,-13.0)"/>
+            <ellipse cx="26.0" cy="-0.0" rx="28" ry="6" fill="url(#petalG)" transform="rotate(90,26.0,-0.0)"/>
+            <ellipse cx="22.5" cy="13.0" rx="28" ry="6" fill="url(#petalG)" transform="rotate(120,22.5,13.0)"/>
+            <ellipse cx="13.0" cy="22.5" rx="28" ry="6" fill="url(#petalG)" transform="rotate(150,13.0,22.5)"/>
+            <ellipse cx="0.0" cy="26.0" rx="28" ry="6" fill="url(#petalG)" transform="rotate(180,0.0,26.0)"/>
+            <ellipse cx="-13.0" cy="22.5" rx="28" ry="6" fill="url(#petalG)" transform="rotate(210,-13.0,22.5)"/>
+            <ellipse cx="-22.5" cy="13.0" rx="28" ry="6" fill="url(#petalG)" transform="rotate(240,-22.5,13.0)"/>
+            <ellipse cx="-26.0" cy="0.0" rx="28" ry="6" fill="url(#petalG)" transform="rotate(270,-26.0,0.0)"/>
+            <ellipse cx="-22.5" cy="-13.0" rx="28" ry="6" fill="url(#petalG)" transform="rotate(300,-22.5,-13.0)"/>
+            <ellipse cx="-13.0" cy="-22.5" rx="28" ry="6" fill="url(#petalG)" transform="rotate(330,-13.0,-22.5)"/>
+            <circle cx="0" cy="0" r="15" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(148,230) rotate(-22)"><g class="leaf-group"><ellipse rx="17" ry="8" fill="#3d6b25"/><line x1="0" y1="-8" x2="0" y2="8" stroke="#2a5018" stroke-width="1"/></g></g>
+      <!-- F2 (292,168) -->
+      <g transform="translate(292,168)">
+        <g class="sway-pos" id="sw2">
+          <g class="petal-group">
+            <ellipse cx="6.7" cy="-25.1" rx="28" ry="6" fill="url(#petalG)" transform="rotate(15,6.7,-25.1)"/>
+            <ellipse cx="18.4" cy="-18.4" rx="28" ry="6" fill="url(#petalG)" transform="rotate(45,18.4,-18.4)"/>
+            <ellipse cx="25.1" cy="-6.7" rx="28" ry="6" fill="url(#petalG)" transform="rotate(75,25.1,-6.7)"/>
+            <ellipse cx="25.1" cy="6.7" rx="28" ry="6" fill="url(#petalG)" transform="rotate(105,25.1,6.7)"/>
+            <ellipse cx="18.4" cy="18.4" rx="28" ry="6" fill="url(#petalG)" transform="rotate(135,18.4,18.4)"/>
+            <ellipse cx="6.7" cy="25.1" rx="28" ry="6" fill="url(#petalG)" transform="rotate(165,6.7,25.1)"/>
+            <ellipse cx="-6.7" cy="25.1" rx="28" ry="6" fill="url(#petalG)" transform="rotate(195,-6.7,25.1)"/>
+            <ellipse cx="-18.4" cy="18.4" rx="28" ry="6" fill="url(#petalG)" transform="rotate(225,-18.4,18.4)"/>
+            <ellipse cx="-25.1" cy="6.7" rx="28" ry="6" fill="url(#petalG)" transform="rotate(255,-25.1,6.7)"/>
+            <ellipse cx="-25.1" cy="-6.7" rx="28" ry="6" fill="url(#petalG)" transform="rotate(285,-25.1,-6.7)"/>
+            <ellipse cx="-18.4" cy="-18.4" rx="28" ry="6" fill="url(#petalG)" transform="rotate(315,-18.4,-18.4)"/>
+            <ellipse cx="-6.7" cy="-25.1" rx="28" ry="6" fill="url(#petalG)" transform="rotate(345,-6.7,-25.1)"/>
+            <circle cx="0" cy="0" r="15" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(292,232) rotate(22)"><g class="leaf-group"><ellipse rx="17" ry="8" fill="#3d6b25"/><line x1="0" y1="-8" x2="0" y2="8" stroke="#2a5018" stroke-width="1"/></g></g>
+      <!-- F3 (108,215) -->
+      <g transform="translate(108,215)">
+        <g class="sway-pos" id="sw3">
+          <g class="petal-group">
+            <ellipse cx="2.6" cy="-18.8" rx="22" ry="5" fill="url(#petalG)" transform="rotate(8,2.6,-18.8)"/>
+            <ellipse cx="11.7" cy="-15.0" rx="22" ry="5" fill="url(#petalG)" transform="rotate(38,11.7,-15.0)"/>
+            <ellipse cx="17.6" cy="-7.1" rx="22" ry="5" fill="url(#petalG)" transform="rotate(68,17.6,-7.1)"/>
+            <ellipse cx="18.8" cy="2.6" rx="22" ry="5" fill="url(#petalG)" transform="rotate(98,18.8,2.6)"/>
+            <ellipse cx="15.0" cy="11.7" rx="22" ry="5" fill="url(#petalG)" transform="rotate(128,15.0,11.7)"/>
+            <ellipse cx="7.1" cy="17.6" rx="22" ry="5" fill="url(#petalG)" transform="rotate(158,7.1,17.6)"/>
+            <ellipse cx="-2.6" cy="18.8" rx="22" ry="5" fill="url(#petalG)" transform="rotate(188,-2.6,18.8)"/>
+            <ellipse cx="-11.7" cy="15.0" rx="22" ry="5" fill="url(#petalG)" transform="rotate(218,-11.7,15.0)"/>
+            <ellipse cx="-17.6" cy="7.1" rx="22" ry="5" fill="url(#petalG)" transform="rotate(248,-17.6,7.1)"/>
+            <ellipse cx="-18.8" cy="-2.6" rx="22" ry="5" fill="url(#petalG)" transform="rotate(278,-18.8,-2.6)"/>
+            <ellipse cx="-15.0" cy="-11.7" rx="22" ry="5" fill="url(#petalG)" transform="rotate(308,-15.0,-11.7)"/>
+            <ellipse cx="-7.1" cy="-17.6" rx="22" ry="5" fill="url(#petalG)" transform="rotate(338,-7.1,-17.6)"/>
+            <circle cx="0" cy="0" r="11" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(108,278) rotate(-36)"><g class="leaf-group"><ellipse rx="15" ry="7" fill="#4a7c2f"/><line x1="0" y1="-7" x2="0" y2="7" stroke="#2a5018" stroke-width="1"/></g></g>
+      <!-- F4 (332,218) -->
+      <g transform="translate(332,218)">
+        <g class="sway-pos" id="sw4">
+          <g class="petal-group">
+            <ellipse cx="4.0" cy="-18.6" rx="22" ry="5" fill="url(#petalG)" transform="rotate(12,4.0,-18.6)"/>
+            <ellipse cx="12.7" cy="-14.1" rx="22" ry="5" fill="url(#petalG)" transform="rotate(42,12.7,-14.1)"/>
+            <ellipse cx="18.1" cy="-5.9" rx="22" ry="5" fill="url(#petalG)" transform="rotate(72,18.1,-5.9)"/>
+            <ellipse cx="18.6" cy="4.0" rx="22" ry="5" fill="url(#petalG)" transform="rotate(102,18.6,4.0)"/>
+            <ellipse cx="14.1" cy="12.7" rx="22" ry="5" fill="url(#petalG)" transform="rotate(132,14.1,12.7)"/>
+            <ellipse cx="5.9" cy="18.1" rx="22" ry="5" fill="url(#petalG)" transform="rotate(162,5.9,18.1)"/>
+            <ellipse cx="-4.0" cy="18.6" rx="22" ry="5" fill="url(#petalG)" transform="rotate(192,-4.0,18.6)"/>
+            <ellipse cx="-12.7" cy="14.1" rx="22" ry="5" fill="url(#petalG)" transform="rotate(222,-12.7,14.1)"/>
+            <ellipse cx="-18.1" cy="5.9" rx="22" ry="5" fill="url(#petalG)" transform="rotate(252,-18.1,5.9)"/>
+            <ellipse cx="-18.6" cy="-4.0" rx="22" ry="5" fill="url(#petalG)" transform="rotate(282,-18.6,-4.0)"/>
+            <ellipse cx="-14.1" cy="-12.7" rx="22" ry="5" fill="url(#petalG)" transform="rotate(312,-14.1,-12.7)"/>
+            <ellipse cx="-5.9" cy="-18.1" rx="22" ry="5" fill="url(#petalG)" transform="rotate(342,-5.9,-18.1)"/>
+            <circle cx="0" cy="0" r="11" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(332,280) rotate(36)"><g class="leaf-group"><ellipse rx="15" ry="7" fill="#4a7c2f"/><line x1="0" y1="-7" x2="0" y2="7" stroke="#2a5018" stroke-width="1"/></g></g>
+      <!-- F5 (220,125) -->
+      <g transform="translate(220,125)">
+        <g class="sway-pos" id="sw5">
+          <g class="petal-group">
+            <ellipse cx="0.0" cy="-30.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(0,0.0,-30.0)"/>
+            <ellipse cx="15.0" cy="-26.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(30,15.0,-26.0)"/>
+            <ellipse cx="26.0" cy="-15.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(60,26.0,-15.0)"/>
+            <ellipse cx="30.0" cy="-0.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(90,30.0,-0.0)"/>
+            <ellipse cx="26.0" cy="15.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(120,26.0,15.0)"/>
+            <ellipse cx="15.0" cy="26.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(150,15.0,26.0)"/>
+            <ellipse cx="0.0" cy="30.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(180,0.0,30.0)"/>
+            <ellipse cx="-15.0" cy="26.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(210,-15.0,26.0)"/>
+            <ellipse cx="-26.0" cy="15.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(240,-26.0,15.0)"/>
+            <ellipse cx="-30.0" cy="0.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(270,-30.0,0.0)"/>
+            <ellipse cx="-26.0" cy="-15.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(300,-26.0,-15.0)"/>
+            <ellipse cx="-15.0" cy="-26.0" rx="32" ry="7" fill="url(#petalG)" transform="rotate(330,-15.0,-26.0)"/>
+            <circle cx="0" cy="0" r="19" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(232,195) rotate(18)"><g class="leaf-group"><ellipse rx="17" ry="8" fill="#3d6b25"/><line x1="0" y1="-8" x2="0" y2="8" stroke="#2a5018" stroke-width="1"/></g></g>
+      <!-- F6 (170,195) -->
+      <g transform="translate(170,195)">
+        <g class="sway-pos" id="sw6">
+          <g class="petal-group">
+            <ellipse cx="2.2" cy="-24.9" rx="27" ry="6" fill="url(#petalG)" transform="rotate(5,2.2,-24.9)"/>
+            <ellipse cx="14.3" cy="-20.5" rx="27" ry="6" fill="url(#petalG)" transform="rotate(35,14.3,-20.5)"/>
+            <ellipse cx="22.7" cy="-10.6" rx="27" ry="6" fill="url(#petalG)" transform="rotate(65,22.7,-10.6)"/>
+            <ellipse cx="24.9" cy="2.2" rx="27" ry="6" fill="url(#petalG)" transform="rotate(95,24.9,2.2)"/>
+            <ellipse cx="20.5" cy="14.3" rx="27" ry="6" fill="url(#petalG)" transform="rotate(125,20.5,14.3)"/>
+            <ellipse cx="10.6" cy="22.7" rx="27" ry="6" fill="url(#petalG)" transform="rotate(155,10.6,22.7)"/>
+            <ellipse cx="-2.2" cy="24.9" rx="27" ry="6" fill="url(#petalG)" transform="rotate(185,-2.2,24.9)"/>
+            <ellipse cx="-14.3" cy="20.5" rx="27" ry="6" fill="url(#petalG)" transform="rotate(215,-14.3,20.5)"/>
+            <ellipse cx="-22.7" cy="10.6" rx="27" ry="6" fill="url(#petalG)" transform="rotate(245,-22.7,10.6)"/>
+            <ellipse cx="-24.9" cy="-2.2" rx="27" ry="6" fill="url(#petalG)" transform="rotate(275,-24.9,-2.2)"/>
+            <ellipse cx="-20.5" cy="-14.3" rx="27" ry="6" fill="url(#petalG)" transform="rotate(305,-20.5,-14.3)"/>
+            <ellipse cx="-10.6" cy="-22.7" rx="27" ry="6" fill="url(#petalG)" transform="rotate(335,-10.6,-22.7)"/>
+            <circle cx="0" cy="0" r="14" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(163,265) rotate(-25)"><g class="leaf-group"><ellipse rx="15" ry="7" fill="#4a7c2f"/><line x1="0" y1="-7" x2="0" y2="7" stroke="#2a5018" stroke-width="1"/></g></g>
+      <!-- F7 (270,195) -->
+      <g transform="translate(270,195)">
+        <g class="sway-pos" id="sw7">
+          <g class="petal-group">
+            <ellipse cx="4.3" cy="-24.6" rx="27" ry="6" fill="url(#petalG)" transform="rotate(10,4.3,-24.6)"/>
+            <ellipse cx="16.1" cy="-19.2" rx="27" ry="6" fill="url(#petalG)" transform="rotate(40,16.1,-19.2)"/>
+            <ellipse cx="23.5" cy="-8.6" rx="27" ry="6" fill="url(#petalG)" transform="rotate(70,23.5,-8.6)"/>
+            <ellipse cx="24.6" cy="4.3" rx="27" ry="6" fill="url(#petalG)" transform="rotate(100,24.6,4.3)"/>
+            <ellipse cx="19.2" cy="16.1" rx="27" ry="6" fill="url(#petalG)" transform="rotate(130,19.2,16.1)"/>
+            <ellipse cx="8.6" cy="23.5" rx="27" ry="6" fill="url(#petalG)" transform="rotate(160,8.6,23.5)"/>
+            <ellipse cx="-4.3" cy="24.6" rx="27" ry="6" fill="url(#petalG)" transform="rotate(190,-4.3,24.6)"/>
+            <ellipse cx="-16.1" cy="19.2" rx="27" ry="6" fill="url(#petalG)" transform="rotate(220,-16.1,19.2)"/>
+            <ellipse cx="-23.5" cy="8.6" rx="27" ry="6" fill="url(#petalG)" transform="rotate(250,-23.5,8.6)"/>
+            <ellipse cx="-24.6" cy="-4.3" rx="27" ry="6" fill="url(#petalG)" transform="rotate(280,-24.6,-4.3)"/>
+            <ellipse cx="-19.2" cy="-16.1" rx="27" ry="6" fill="url(#petalG)" transform="rotate(310,-19.2,-16.1)"/>
+            <ellipse cx="-8.6" cy="-23.5" rx="27" ry="6" fill="url(#petalG)" transform="rotate(340,-8.6,-23.5)"/>
+            <circle cx="0" cy="0" r="14" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(277,265) rotate(25)"><g class="leaf-group"><ellipse rx="15" ry="7" fill="#4a7c2f"/><line x1="0" y1="-7" x2="0" y2="7" stroke="#2a5018" stroke-width="1"/></g></g>
+      <!-- F8 (130,248) -->
+      <g transform="translate(130,248)">
+        <g class="sway-pos" id="sw8">
+          <g class="petal-group">
+            <ellipse cx="5.8" cy="-16.0" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(20,5.8,-16.0)"/>
+            <ellipse cx="13.0" cy="-10.9" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(50,13.0,-10.9)"/>
+            <ellipse cx="16.7" cy="-3.0" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(80,16.7,-3.0)"/>
+            <ellipse cx="16.0" cy="5.8" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(110,16.0,5.8)"/>
+            <ellipse cx="10.9" cy="13.0" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(140,10.9,13.0)"/>
+            <ellipse cx="3.0" cy="16.7" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(170,3.0,16.7)"/>
+            <ellipse cx="-5.8" cy="16.0" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(200,-5.8,16.0)"/>
+            <ellipse cx="-13.0" cy="10.9" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(230,-13.0,10.9)"/>
+            <ellipse cx="-16.7" cy="3.0" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(260,-16.7,3.0)"/>
+            <ellipse cx="-16.0" cy="-5.8" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(290,-16.0,-5.8)"/>
+            <ellipse cx="-10.9" cy="-13.0" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(320,-10.9,-13.0)"/>
+            <ellipse cx="-3.0" cy="-16.7" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(350,-3.0,-16.7)"/>
+            <circle cx="0" cy="0" r="10" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <!-- F9 (310,252) -->
+      <g transform="translate(310,252)">
+        <g class="sway-pos" id="sw9">
+          <g class="petal-group">
+            <ellipse cx="1.5" cy="-16.9" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(5,1.5,-16.9)"/>
+            <ellipse cx="9.8" cy="-13.9" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(35,9.8,-13.9)"/>
+            <ellipse cx="15.4" cy="-7.2" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(65,15.4,-7.2)"/>
+            <ellipse cx="16.9" cy="1.5" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(95,16.9,1.5)"/>
+            <ellipse cx="13.9" cy="9.8" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(125,13.9,9.8)"/>
+            <ellipse cx="7.2" cy="15.4" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(155,7.2,15.4)"/>
+            <ellipse cx="-1.5" cy="16.9" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(185,-1.5,16.9)"/>
+            <ellipse cx="-9.8" cy="13.9" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(215,-9.8,13.9)"/>
+            <ellipse cx="-15.4" cy="7.2" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(245,-15.4,7.2)"/>
+            <ellipse cx="-16.9" cy="-1.5" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(275,-16.9,-1.5)"/>
+            <ellipse cx="-13.9" cy="-9.8" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(305,-13.9,-9.8)"/>
+            <ellipse cx="-7.2" cy="-15.4" rx="19" ry="4.5" fill="url(#petalG)" transform="rotate(335,-7.2,-15.4)"/>
+            <circle cx="0" cy="0" r="10" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <!-- F10 (203,164) -->
+      <g transform="translate(203,164)">
+        <g class="sway-pos" id="sw10">
+          <g class="petal-group">
+            <ellipse cx="0.0" cy="-23.0" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(0,0.0,-23.0)"/>
+            <ellipse cx="11.5" cy="-19.9" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(30,11.5,-19.9)"/>
+            <ellipse cx="19.9" cy="-11.5" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(60,19.9,-11.5)"/>
+            <ellipse cx="23.0" cy="-0.0" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(90,23.0,-0.0)"/>
+            <ellipse cx="19.9" cy="11.5" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(120,19.9,11.5)"/>
+            <ellipse cx="11.5" cy="19.9" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(150,11.5,19.9)"/>
+            <ellipse cx="0.0" cy="23.0" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(180,0.0,23.0)"/>
+            <ellipse cx="-11.5" cy="19.9" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(210,-11.5,19.9)"/>
+            <ellipse cx="-19.9" cy="11.5" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(240,-19.9,11.5)"/>
+            <ellipse cx="-23.0" cy="0.0" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(270,-23.0,0.0)"/>
+            <ellipse cx="-19.9" cy="-11.5" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(300,-19.9,-11.5)"/>
+            <ellipse cx="-11.5" cy="-19.9" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(330,-11.5,-19.9)"/>
+            <circle cx="0" cy="0" r="12" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <!-- F11 (237,164) -->
+      <g transform="translate(237,164)">
+        <g class="sway-pos" id="sw11">
+          <g class="petal-group">
+            <ellipse cx="6.0" cy="-22.2" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(15,6.0,-22.2)"/>
+            <ellipse cx="16.3" cy="-16.3" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(45,16.3,-16.3)"/>
+            <ellipse cx="22.2" cy="-6.0" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(75,22.2,-6.0)"/>
+            <ellipse cx="22.2" cy="6.0" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(105,22.2,6.0)"/>
+            <ellipse cx="16.3" cy="16.3" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(135,16.3,16.3)"/>
+            <ellipse cx="6.0" cy="22.2" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(165,6.0,22.2)"/>
+            <ellipse cx="-6.0" cy="22.2" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(195,-6.0,22.2)"/>
+            <ellipse cx="-16.3" cy="16.3" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(225,-16.3,16.3)"/>
+            <ellipse cx="-22.2" cy="6.0" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(255,-22.2,6.0)"/>
+            <ellipse cx="-22.2" cy="-6.0" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(285,-22.2,-6.0)"/>
+            <ellipse cx="-16.3" cy="-16.3" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(315,-16.3,-16.3)"/>
+            <ellipse cx="-6.0" cy="-22.2" rx="25" ry="5.5" fill="url(#petalG)" transform="rotate(345,-6.0,-22.2)"/>
+            <circle cx="0" cy="0" r="12" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <!-- F12 (186,207) -->
+      <g transform="translate(186,207)">
+        <g class="sway-pos" id="sw12">
+          <g class="petal-group">
+            <ellipse cx="0.0" cy="-27.0" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(0,0.0,-27.0)"/>
+            <ellipse cx="13.5" cy="-23.4" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(30,13.5,-23.4)"/>
+            <ellipse cx="23.4" cy="-13.5" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(60,23.4,-13.5)"/>
+            <ellipse cx="27.0" cy="-0.0" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(90,27.0,-0.0)"/>
+            <ellipse cx="23.4" cy="13.5" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(120,23.4,13.5)"/>
+            <ellipse cx="13.5" cy="23.4" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(150,13.5,23.4)"/>
+            <ellipse cx="0.0" cy="27.0" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(180,0.0,27.0)"/>
+            <ellipse cx="-13.5" cy="23.4" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(210,-13.5,23.4)"/>
+            <ellipse cx="-23.4" cy="13.5" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(240,-23.4,13.5)"/>
+            <ellipse cx="-27.0" cy="0.0" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(270,-27.0,0.0)"/>
+            <ellipse cx="-23.4" cy="-13.5" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(300,-23.4,-13.5)"/>
+            <ellipse cx="-13.5" cy="-23.4" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(330,-13.5,-23.4)"/>
+            <circle cx="0" cy="0" r="16" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(178,275) rotate(-22)"><g class="leaf-group"><ellipse rx="16" ry="7" fill="#3d6b25"/><line x1="0" y1="-7" x2="0" y2="7" stroke="#2a5018" stroke-width="1"/></g></g>
+      <!-- F13 (254,207) -->
+      <g transform="translate(254,207)">
+        <g class="sway-pos" id="sw13">
+          <g class="petal-group">
+            <ellipse cx="5.6" cy="-26.4" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(12,5.6,-26.4)"/>
+            <ellipse cx="18.1" cy="-20.1" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(42,18.1,-20.1)"/>
+            <ellipse cx="25.7" cy="-8.3" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(72,25.7,-8.3)"/>
+            <ellipse cx="26.4" cy="5.6" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(102,26.4,5.6)"/>
+            <ellipse cx="20.1" cy="18.1" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(132,20.1,18.1)"/>
+            <ellipse cx="8.3" cy="25.7" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(162,8.3,25.7)"/>
+            <ellipse cx="-5.6" cy="26.4" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(192,-5.6,26.4)"/>
+            <ellipse cx="-18.1" cy="20.1" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(222,-18.1,20.1)"/>
+            <ellipse cx="-25.7" cy="8.3" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(252,-25.7,8.3)"/>
+            <ellipse cx="-26.4" cy="-5.6" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(282,-26.4,-5.6)"/>
+            <ellipse cx="-20.1" cy="-18.1" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(312,-20.1,-18.1)"/>
+            <ellipse cx="-8.3" cy="-25.7" rx="29" ry="6.5" fill="url(#petalG)" transform="rotate(342,-8.3,-25.7)"/>
+            <circle cx="0" cy="0" r="16" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <g transform="translate(262,275) rotate(22)"><g class="leaf-group"><ellipse rx="16" ry="7" fill="#3d6b25"/><line x1="0" y1="-7" x2="0" y2="7" stroke="#2a5018" stroke-width="1"/></g></g>
+      <!-- F14 (155,262) -->
+      <g transform="translate(155,262)">
+        <g class="sway-pos" id="sw14">
+          <g class="petal-group">
+            <ellipse cx="0.0" cy="-18.0" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(0,0.0,-18.0)"/>
+            <ellipse cx="9.0" cy="-15.6" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(30,9.0,-15.6)"/>
+            <ellipse cx="15.6" cy="-9.0" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(60,15.6,-9.0)"/>
+            <ellipse cx="18.0" cy="-0.0" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(90,18.0,-0.0)"/>
+            <ellipse cx="15.6" cy="9.0" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(120,15.6,9.0)"/>
+            <ellipse cx="9.0" cy="15.6" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(150,9.0,15.6)"/>
+            <ellipse cx="0.0" cy="18.0" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(180,0.0,18.0)"/>
+            <ellipse cx="-9.0" cy="15.6" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(210,-9.0,15.6)"/>
+            <ellipse cx="-15.6" cy="9.0" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(240,-15.6,9.0)"/>
+            <ellipse cx="-18.0" cy="0.0" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(270,-18.0,0.0)"/>
+            <ellipse cx="-15.6" cy="-9.0" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(300,-15.6,-9.0)"/>
+            <ellipse cx="-9.0" cy="-15.6" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(330,-9.0,-15.6)"/>
+            <circle cx="0" cy="0" r="10" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+      <!-- F15 (285,262) -->
+      <g transform="translate(285,262)">
+        <g class="sway-pos" id="sw15">
+          <g class="petal-group">
+            <ellipse cx="5.6" cy="-17.1" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(18,5.6,-17.1)"/>
+            <ellipse cx="13.4" cy="-12.0" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(48,13.4,-12.0)"/>
+            <ellipse cx="17.6" cy="-3.7" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(78,17.6,-3.7)"/>
+            <ellipse cx="17.1" cy="5.6" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(108,17.1,5.6)"/>
+            <ellipse cx="12.0" cy="13.4" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(138,12.0,13.4)"/>
+            <ellipse cx="3.7" cy="17.6" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(168,3.7,17.6)"/>
+            <ellipse cx="-5.6" cy="17.1" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(198,-5.6,17.1)"/>
+            <ellipse cx="-13.4" cy="12.0" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(228,-13.4,12.0)"/>
+            <ellipse cx="-17.6" cy="3.7" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(258,-17.6,3.7)"/>
+            <ellipse cx="-17.1" cy="-5.6" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(288,-17.1,-5.6)"/>
+            <ellipse cx="-12.0" cy="-13.4" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(318,-12.0,-13.4)"/>
+            <ellipse cx="-3.7" cy="-17.6" rx="20" ry="4.5" fill="url(#petalG)" transform="rotate(348,-3.7,-17.6)"/>
+            <circle cx="0" cy="0" r="10" fill="url(#centerG)"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <button id="open-btn">🌻 Toca para abrir el ramo</button>
+  <div id="message-card">
+    <h2>Para que no me le dé fomo 🌻</h2>
+    <p>son unas florecitas amarillas programadas por sam</p>
+  </div>
+</div>
+<script>
+(function(){
+  const cv=document.getElementById('stars'),ctx=cv.getContext('2d');
+  let W,H,S=[];
+  function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+  function init(){S=[];const n=Math.floor(W*H/2600);for(let i=0;i<n;i++)S.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+0.3,ph:Math.random()*Math.PI*2,ts:Math.random()*0.007+0.003,vx:(Math.random()-.5)*0.14,vy:(Math.random()-.5)*0.09});}
+  let t=0;
+  function draw(){ctx.clearRect(0,0,W,H);t+=0.016;for(const s of S){s.x+=s.vx;s.y+=s.vy;if(s.x<-2)s.x=W+2;if(s.x>W+2)s.x=-2;if(s.y<-2)s.y=H+2;if(s.y>H+2)s.y=-2;const a=0.15+0.85*(0.5+0.5*Math.sin(t*s.ts*60+s.ph));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,240,${a.toFixed(2)})`;ctx.fill();}requestAnimationFrame(draw);}
+  window.addEventListener('resize',()=>{resize();init();});resize();init();draw();
+})();
+const btn=document.getElementById('open-btn'),
+      sun=document.getElementById('mini-sun'),
+      svg=document.getElementById('bouquet-svg'),
+      card=document.getElementById('message-card');
+const swayNames=['sway1','sway2','sway3','sway4','sway5','sway6','sway7','sway8','sway9','sway10','sway11','sway12','sway13','sway14','sway15'];
+const swayDurs=[3800,4200,3500,4600,4000,3700,4400,3900,4100,3600,4300,3800,4500,3700,4000];
+btn.addEventListener('click',()=>{
+  btn.classList.add('hidden');
+  sun.classList.add('burst');
+  setTimeout(()=>{
+    sun.style.display='none';
+    svg.classList.add('visible');
+    document.querySelectorAll('.stem-line').forEach((s,i)=>setTimeout(()=>{s.style.opacity='1';},i*20));
+    setTimeout(()=>document.querySelectorAll('.paper-piece').forEach((p,i)=>setTimeout(()=>{p.style.opacity='1';},i*50)),160);
+    const BASE=300,STEP=195,LEAF=320;
+    const pgs=document.querySelectorAll('.petal-group');
+    const lgs=document.querySelectorAll('.leaf-group');
+    const sws=document.querySelectorAll('.sway-pos');
+    pgs.forEach((pg,i)=>setTimeout(()=>{pg.style.transform='scale(1)';pg.style.opacity='1';},BASE+i*STEP));
+    lgs.forEach((lg,i)=>setTimeout(()=>{lg.style.transform='scaleY(1)';lg.style.opacity='1';},BASE+i*STEP+LEAF));
+    sws.forEach((sg,i)=>setTimeout(()=>{sg.style.animation=`${swayNames[i]} ${swayDurs[i]}ms ease-in-out infinite`;},BASE+i*STEP+500));
+    const total=BASE+(pgs.length-1)*STEP+800;
+    setTimeout(()=>card.classList.add('visible'),total);
+  },480);
+});
+</script>
+</body>
+</html>
